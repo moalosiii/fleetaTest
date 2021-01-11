@@ -11,6 +11,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,6 +25,8 @@ import com.backendless.exceptions.BackendlessFault;
 import com.example.fleetatest.datatables.Vehicle;
 import com.google.android.material.textfield.TextInputLayout;
 
+import fr.ganfra.materialspinner.MaterialSpinner;
+
 public class AddVehicle extends AppCompatActivity {
 
     private View mProgressView;
@@ -29,10 +34,14 @@ public class AddVehicle extends AppCompatActivity {
     private TextView tvLoad;
 
 
-    String barcode;
 
-    EditText etMake,etModel,etColor,etIssues,etYear,etVin,etFuelType,etPlate,etOdometer,etType,etVstatus;
-    TextInputLayout make,model,year,issues,vin,fuelType,plate,Odometer,type,status,color;
+    String[] type = { "Please Choose","Car", "Truck"};
+    String[] fuel = { "Please Choose","Petrol", "Diesel"};
+    MaterialSpinner spin,spin2;
+    String barcode,vType,fType;
+
+    EditText etMake,etModel,etColor,etIssues,etYear,etVin,etPlate,etOdometer,etVstatus;
+    TextInputLayout make,model,year,vin,fuelType,plate,Odometer,status,color;
     TextView barcodeText;
     Button btnSubmit;
 
@@ -55,29 +64,74 @@ public class AddVehicle extends AppCompatActivity {
         year=findViewById(R.id.year);
         status=findViewById(R.id. vStatus);
         vin=findViewById(R.id.vin);
-        fuelType=findViewById(R.id.fuelType);
+        spin2=findViewById(R.id.fuelType);
         plate=findViewById(R.id.plate);
         Odometer=findViewById(R.id.Odometer);
-        type=findViewById(R.id.type);
-        issues=findViewById(R.id.issues);
+       // type=findViewById(R.id.type);
+
 
         //EditText Hooks
         etMake=findViewById(R.id.etMake);
         etModel=findViewById(R.id.etModel);
         etColor=findViewById(R.id.etColor);
-        etIssues=findViewById(R.id.etIssues);
         etYear=findViewById(R.id.etYear);
         etVin=findViewById(R.id.etVin);
-        etFuelType=findViewById(R.id.etFuelType);
         etPlate=findViewById(R.id.etPlate);
         etOdometer=findViewById(R.id.etOdometer);
-        etType=findViewById(R.id.etType);
+        //etType=findViewById(R.id.etType);
         etVstatus=findViewById(R.id.etVstatus);
         barcodeText=findViewById(R.id.barcodeText);
 
         btnSubmit=findViewById(R.id.btnSubmit);
+        spin=findViewById(R.id.spinner);
 
 
+        //Creating the ArrayAdapter instance having the country list
+        ArrayAdapter aa = new ArrayAdapter(this,android.R.layout.simple_spinner_item,type);
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spin.setAdapter(aa);
+
+        spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position!=-1) {
+                    String selected = spin.getItemAtPosition(position).toString();
+                    if(selected=="Please Choose")
+                        spin.setError("Error Please Select Vehicle Type");
+                    else
+                        selected=vType;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                spin.setError("Error Please Select Vehicle Type");
+            }
+        });
+
+        ArrayAdapter bb = new ArrayAdapter(this,android.R.layout.simple_spinner_item,fuel);
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spin2.setAdapter(bb);
+
+        spin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position!=-1) {
+                    String selected = spin2.getItemAtPosition(position).toString();
+                    if(selected=="Please Choose")
+                        spin2.setError("Error Please Select Vehicle Fuel Type");
+                    else
+                        selected=fType;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                spin.setError("Error Please Select Vehicle Fuel Type");
+            }
+        });
         etMake.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -96,33 +150,38 @@ public class AddVehicle extends AppCompatActivity {
                 validateYear();
             }
         });
-
+        etColor.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                validateColor();
+            }
+        });
 
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if(etMake.getText().toString().isEmpty()||etModel.getText().toString().isEmpty()||
+               /* if(etMake.getText().toString().isEmpty()||etModel.getText().toString().isEmpty()||
                         etColor.getText().toString().isEmpty()|| etIssues.getText().toString().isEmpty()|| etYear.getText().toString().isEmpty()||
-                        etVin.getText().toString().isEmpty()||etFuelType.getText().toString().isEmpty()||etPlate.getText().toString().isEmpty()||etOdometer.getText().toString().isEmpty()||
-                        etType.getText().toString().isEmpty()|| etVstatus.getText().toString().isEmpty())
+                        etVin.getText().toString().isEmpty()||etPlate.getText().toString().isEmpty()||etOdometer.getText().toString().isEmpty()||
+                         etVstatus.getText().toString().isEmpty())
                 {
                     Toast.makeText(AddVehicle.this, "please enter all fields", Toast.LENGTH_SHORT).show();
                 }
                 else
-                {
+                {*/
                     Vehicle vehicle=new Vehicle();
                     vehicle.setMake(etMake.getText().toString().trim());
                     vehicle.setModel(etModel.getText().toString().trim());
                     vehicle.setColor(etColor.getText().toString().trim());
                     vehicle.setOdometer(Long.parseLong(etOdometer.getText().toString().trim()));
                     vehicle.setPlate(etPlate.getText().toString().trim());
-                    vehicle.setFuelType(etFuelType.getText().toString().trim());
+                    vehicle.setFuelType(fType);
                     vehicle.setVin(etVin.getText().toString().trim());
                     vehicle.setIssues(etIssues.getText().toString().trim());
-                    vehicle.setVehicleStatus(etVstatus.getText().toString().trim());
-                    vehicle.setVehicleType(etType.getText().toString().trim());
+                   // vehicle.setVehicleStatus("Available");
+                    vehicle.setVehicleType(vType);
                     vehicle.setVehicleId(barcode);
 
                     tvLoad.setText("Creating new Vehicle...Please wait...");
@@ -131,16 +190,14 @@ public class AddVehicle extends AppCompatActivity {
                         @Override
                         public void handleResponse(Vehicle response) {
                             Toast.makeText(AddVehicle.this, "Vehicle Successfully saved! ", Toast.LENGTH_SHORT).show();
-                            etMake.setText(null);
+                            /*etMake.setText(null);
                             etModel.setText(null);
                             etColor.setText(null);
                             etOdometer.setText(null);
                             etPlate.setText(null);
-                            etFuelType.setText(null);
                             etVin.setText(null);
                             etIssues.setText(null);
-                            etVstatus.setText(null);
-                            etType.setText(null);
+                            etVstatus.setText(null);*/
                             showProgress(false);
                             AddVehicle.this.finish();
                         }
@@ -152,7 +209,7 @@ public class AddVehicle extends AppCompatActivity {
                         }
                     });
                 }
-            }
+            //}
         });
         barcodeText.setOnClickListener(new View.OnClickListener() {
             @Override
